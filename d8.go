@@ -200,7 +200,7 @@ func main () {
     // loop through test sets
     for i, o := range obsvs {
 
-        //fmt.Printf("Disp %03v:   [", i)
+        fmt.Printf("Disp %03v:   [", i)
         wiring := detectWiring(o, segCnt)
         for j := 0; j < 4; j++ {
             d := digit(disps[i][j], wiring, svD)
@@ -208,9 +208,9 @@ func main () {
                 p1Cnt += 1
             }
             p2Cnt += d * m10[3-j]
-            //fmt.Print(d)  
+            fmt.Print(d)  
         }
-        //fmt.Printf("]   | P1 Result: %3v | P2 Result: %7v\n", p1Cnt, p2Cnt)
+        fmt.Printf("]   | P1 Result: %3v | P2 Result: %7v\n", p1Cnt, p2Cnt)
     }
 
  	fmt.Printf("Execution time: %v\n", time.Since(start))
