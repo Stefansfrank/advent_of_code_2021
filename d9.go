@@ -37,6 +37,20 @@ func parseFile (lines []string) {
 		}
 	}
 
+	// padding
+	for x := -1; x <= xmax; x++ {
+		mset(x,-1,9)
+		mset(x,ymax,9)
+		mmset(x,-1,false)
+		mmset(x,ymax,false)
+	}
+	for y := 0; y <= ymax; y++ {
+		mset(-1,y,9)
+		mset(xmax,y,9)
+		mmset(-1,y,false)
+		mmset(xmax,y,false)
+	}
+
 }
 
 // helper structure for points
@@ -45,44 +59,35 @@ type pnt struct {
 	y int
 }
 
-// accessing the maps with index overflow safety
-// basically defining the map beyond limits as 9s
+// Globals (since I am lazy and do not like endless signatures unless encapsilation is important)
+var xmax, ymax int     // the dimensions of the map
+var mp    map[pnt]int  // the map of numbers
+var minMp map[pnt]bool // a masking map used to identify local minimums and basins (Note: false means loc. minimum / basin)
+
+// helpers to make code shorter / more readable
 func m(x,y int) int {
-	if x >= xmax || y >= ymax || x < 0 || y < 0 {
-		return 9
-	}
 	return mp[pnt{x,y}]
 }
 
 func mset(x,y,val int) {
-	if x >= xmax || y >= ymax || x < 0 || y < 0 {
-		return
-	}
 	mp[pnt{x,y}] = val
 }
 
 func mm(x,y int) bool {
-	if x >= xmax || y >= ymax || x < 0 || y < 0 {
-		return false
-	}
 	return minMp[pnt{x,y}]
 }
 
 func mmset(x,y int, val bool) {
-	if x >= xmax || y >= ymax || x < 0 || y < 0 {
-		return
-	}
 	minMp[pnt{x,y}] = val
 }
-
 
 // --------- P1 Main Logic -------------------
 
 
 // detect the low points of the system
 // NOTE: I have thought about what to do for points that are level, but:
-// It turns out the puzzle input has no level points (lower than 9) next to each other 
-// thus we can just omit dealing with level points. The way the code is written, 
+// It turns out the puzzle input has no level minimums next to each other 
+// thus we can just omit dealing with level points when searching for the minimum 
 func detMin () (mins []pnt) {
 
 	// map indicating local mins
@@ -92,7 +97,6 @@ func detMin () (mins []pnt) {
 
 	// move sideways and down through all points comparing to the next point right / down
 	// taking out possible solutions for all points compared	
-	// NOTE: the getters are able to deal with index overflows thus this works ...
 	for x := 0; x < xmax; x++ {
 		for y :=0; y < ymax; y++ {
 
@@ -140,21 +144,15 @@ func sum (vs []pnt) (sm int) {
 
 // ------------- P2 Main Logic ----------------------
 
-// Recursive app that looks whether the four surrounding spots are lower than 9
-// and not yet tapped as part of a basin. 
+// Recursive app that starts at a minimum and adds neighbouring tiles unless they are 9. 
 // NOTE: This code does not properly deal with the special case of a basin with a sub-basin in a side wall
-// if such a sub-basin would be present, two things would happen:
-// a) since there are two local minimums, the basin would be counted twice
-// b) since the second local minimum is already false, the basin counting would not traverse it
-// a) & b) combined will lead to wonky sizes being returned for the size of the basin with sub-basin
-// either one of the basins is counted with size -1 and the second one with size 1 or if the
-// second minimum is a bottleneck for the traversion, both basins have bigger than 1 size but less than full size
-// GOOD NEWS: no sub-basins in the input ...
+// if such a sub-basin would be present, one basin would be split in two basins in the result 
+// However, the puzzle input does not have any such occurance
 
 func basinSize(p pnt) (size int) {
 
 	size = 1 				// counting the point itself
-	mmset(p.x,p.y, false)	// not needed for the starting local minimum but for recursion
+	mmset(p.x,p.y, false)	// not needed for the starting local minimum (already false) but for recursion
 
 	// loop through the four neighbors recursively
 	if m(p.x+1,p.y) < 9 && mm(p.x+1,p.y) {
@@ -172,11 +170,6 @@ func basinSize(p pnt) (size int) {
 
 	return
 }
-
-// Globals (since I do not like endless signatures unless encapsilation is important)
-var xmax, ymax int     // the dimensions of the map
-var mp    map[pnt]int  // the map of numbers
-var minMp map[pnt]bool // a map used to mark local minimums and basins (false means minimum in part 1 and depression below 9 in part 2)
 
 // MAIN ----
 func main () {
@@ -199,6 +192,8 @@ func main () {
 	// Part 1
 	mins := detMin() // min map is built
 	fmt.Printf("Risk  (P1): %v\n", sum(mins)+len(mins))
+ 	fmt.Printf("Execution time: %v\n", time.Since(start))
+	start   = time.Now()
 
 	// Part 2
 	sm := []int{}
