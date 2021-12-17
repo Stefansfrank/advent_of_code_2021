@@ -79,7 +79,7 @@ func main() {
 	cnt  := 0
 	maxY := 0
 
-	// reasonable bounds for brute force approach:
+	// reasonable bounds for brute force approach (math approach for part 1 below:
 	// x needs to be below the coordinates of the target area or it overshoots on first iteration
 	// y needs to be between + and - the absolute y coord of the target area
 	// if smaller it overshoots on first iteration
@@ -95,8 +95,18 @@ func main() {
 			}
 		}
 	}
-
 	fmt.Printf("Thera are %v solutions with a maximum height of: %v\n", cnt, maxY)
+
+	// there is a pure math approach for part 1: if the launch goes up with a y-velocity of v
+	// then it comes back to zero with a velocity of -v and thus will have velocity -(v+1) on the next step down.
+	// In order to not overshoot the target on that step, 
+	// that step down after reaching zero again must be less or equal the lower bound of the target
+	// thus the highest valid upward y velocity will just hit the lowest bound of the target on that step after return to zero.
+	// Therefore v_max = must be abs(y_low) - 1 in order to just hit the lowest row of the target
+	// The maximum height is then v_max + (v_max - 1) + (v_max - 2) ... or the sum of all integers from 1 to v_max
+	// which can be computed by Gauss' sum formula as v_max * (v_max + 1) / 2 thus (abs(y_low) - 1) * abs(y_low) /2 
+	// in my case 98*99/2
+	fmt.Println("Part 1 solved with math:", (-inp[0].yfrom - 1) * -inp[0].yfrom / 2)
 
 	fmt.Println("Execution time:", time.Since(start))
 }
