@@ -300,14 +300,17 @@ func main () {
 
 	start  := time.Now()
 	input  := readTxtFile("d18." + dataset + ".txt")
+	prs    := make([]*pair, len(input))
+	for i := 0; i < len(input); i++ {
+		prs[i] = parseNum(input[0], 0, nil, -1)
+	}
 
 	// Part 1 - read first line
-	pr := parseNum(input[0], 0, nil, -1)
+	pr := prs[0]
 
 	// add the remaining lines one after the other
 	for i:=1; i<len(input); i++ {
-		pr2 := parseNum(input[i], 0, nil, -1)
-		pr = pr.add(pr2)
+		pr = pr.add(prs[i])
 		pr.reduce()
 	}
 
@@ -321,14 +324,12 @@ func main () {
 	// we allow the same pair of lines twice in either sequence
 	for i1:=0; i1<len(input); i1++ {
 		for i2:=0; i2<len(input); i2++ {
-			pr1 := parseNum(input[i1], 0, nil, -1)
-			pr2 := parseNum(input[i2], 0, nil, -1)
-			pr1  = pr1.add(pr2)
-			pr1.reduce()
-			res = append(res, pr1.magnitude())
-			sort.Ints(res)
+			pr = pr[i1].add(pr[i2])
+			pr.reduce()
+			res = append(res, pr.magnitude())
 		}
 	}
+	sort.Ints(res)
 	fmt.Println("Maximum magnitude: ", res[len(res)-1])
 
  	fmt.Printf("Execution time: %v\n", time.Since(start))
