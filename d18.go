@@ -300,17 +300,13 @@ func main () {
 
 	start  := time.Now()
 	input  := readTxtFile("d18." + dataset + ".txt")
-	prs    := make([]*pair, len(input))
-	for i := 0; i < len(input); i++ {
-		prs[i] = parseNum(input[0], 0, nil, -1)
-	}
 
 	// Part 1 - read first line
-	pr := prs[0]
+	pr := parseNum(input[0], 0, nil, -1)
 
 	// add the remaining lines one after the other
 	for i:=1; i<len(input); i++ {
-		pr = pr.add(prs[i])
+		pr = pr.add(parseNum(input[i], 0, nil, -1))
 		pr.reduce()
 	}
 
@@ -318,13 +314,15 @@ func main () {
 	fmt.Println("Magnitude: ", pr.magnitude())
 
 	// Part 2 
-	res := []int{} // slice of magnitudes determined
+	res := []int{} 
 
 	// go through all combinations of lines. Since the add is not commutative
 	// we allow the same pair of lines twice in either sequence
 	for i1:=0; i1<len(input); i1++ {
 		for i2:=0; i2<len(input); i2++ {
-			pr = pr[i1].add(pr[i2])
+			p1 := parseNum(input[i1], 0, nil, -1)
+			p2 := parseNum(input[i2], 0, nil, -1)
+			pr = p1.add(p2)
 			pr.reduce()
 			res = append(res, pr.magnitude())
 		}
