@@ -8,7 +8,7 @@ import (
 var endScore  = 21
 var boardSize = 10
 
-// there are three core global variables that are [][][][]int 
+// there are two core global variables that are [][][][]int 
 // the inidices mean: [position player 1][position player 2][score player 1][score player 2]
 // var stateCt counts how many different games are in the state described by the indices
 // var diff  is a cache holding the changes in the amount of games in that state per round
