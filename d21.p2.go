@@ -8,7 +8,7 @@ import (
 var endScore  = 21
 var boardSize = 10
 
-// there are two core global variables that are [][][][]int 
+// there are three core global variables that are [][][][]int 
 // the inidices mean: [position player 1][position player 2][score player 1][score player 2]
 // var stateCt counts how many different games are in the state described by the indices
 // var diff  is a cache holding the changes in the amount of games in that state per round
@@ -20,6 +20,9 @@ var dist, winCnt []int
 
 // openStates counts the game states that have not yet ended
 var openStates int
+
+// precomputed move results - first index is the current positions, second the roll result
+var mov [][]int
 
 // initialize the game state counters
 // ... sometimes I hate Go ...
@@ -53,6 +56,15 @@ func initial() {
 		// using a 3 digit "trinary" representation of 27 to simulate the rolls
 		dist[i/9 + i%9/3 + i%3 + 3] += 1 
 	}
+
+	// precompute the moves
+	mov = make([][]int, boardSize+1)
+	for i := 1; i <= boardSize; i++ {
+		mov[i] = make([]int, boardSize+1)
+		for j := 1; j <= boardSize; j++ {
+			mov[i][j] = (i + j - 1) % 10 + 1
+		}
+	}
 }
 
 // executing one roll iteration with all possible outcomes
@@ -83,7 +95,7 @@ func movePlayer(plN int) {
 						for r:=3; r < 10; r++ {
 
 							// determine the new indices for the state after roll
-							npos[plN]  = mov(pos[plN], r)
+							npos[plN]  = mov[pos[plN]][r]
 							npos[oplN] = pos[oplN]
 							nscr[plN]  = scr[plN] + npos[plN]
 							nscr[oplN] = scr[oplN]
@@ -135,11 +147,6 @@ func movePlayer(plN int) {
 			}
 		}
 	}				
-}
-
-// quick helper adding two numbers on the cyclic 1..10 board
-func mov(from, by int) int {
-	return (from + by - 1) % 10 + 1
 }
 
 func main() {
