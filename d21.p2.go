@@ -32,13 +32,13 @@ func initial() {
 
 	stateCt = make([][][][]int, dim12)
 	diff    = make([][][][]int, dim12)
-	for i := 0; i < 11; i++ {
+	for i := 0; i < dim12; i++ {
 		stateCt[i] = make([][][]int, dim12)
 		diff[i]    = make([][][]int, dim12)
-		for j :=0; j<11; j++ {
+		for j := 0; j < dim12; j++ {
 			stateCt[i][j] = make([][]int, dim34)
 			diff[i][j]    = make([][]int, dim34)
-			for k:=0; k<31; k++ {
+			for k := 0; k < dim34; k++ {
 				stateCt[i][j][k] = make([]int, dim34)
 				diff[i][j][k]    = make([]int, dim34)
 			}
