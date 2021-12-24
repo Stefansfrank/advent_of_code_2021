@@ -150,6 +150,69 @@ func initial(n int) (is []int) {
 	return
 }
 
+// compute solutions 
+func solve(code []string) (min, max int) {
+
+	// determine the relevant parameter slices
+	p1 := make([]int, 14)
+	p2 := make([]int, 14)
+	p3 := make([]int, 14)
+	for it := 0; it <14; it++ {
+		p1[it] = atoi(code[it*18 + 4][6:])
+		p2[it] = atoi(code[it*18 + 5][6:])
+		p3[it] = atoi(code[it*18 + 15][6:])
+	}
+
+	type xy struct {
+		x int
+		y int
+	}
+	// determine the rotation pairs 
+	// i.e. the combination of a left and right rotation that match each other
+	pairs := []xy{}
+	for len(pairs) < 7 {
+		ll := -1
+		for i, p := range p1 {
+			if p == 1 {
+				ll = i
+			} else if p == 26 {
+				pairs = append(pairs, xy{ll, i})
+				p1[ll] = 2
+				p1[i] = 27
+				break
+			}
+
+		}
+	}
+
+	// determin the minimum matric
+	mmin := make([]int, 14)
+	mmax := make([]int, 14)
+	for _,pr := range pairs {
+		diff := p3[pr.x] + p2[pr.y] 
+		if diff > 0 {
+			mmax[pr.x] = 9 - diff
+			mmin[pr.x] = 1
+			mmax[pr.y] = 9
+			mmin[pr.y] = 1 + diff
+		} else {
+			mmax[pr.x] = 9 
+			mmin[pr.x] = 1 - diff
+			mmax[pr.y] = 9 + diff
+			mmin[pr.y] = 1 
+		}
+	}
+
+	for i := 0; i < 14; i++ {
+		min *= 10
+		max *= 10
+		min += mmin[i]
+		max += mmax[i]		
+	}
+
+	return
+}
+
 // MAIN ----
 func main () {
 
@@ -164,13 +227,11 @@ func main () {
 	start  := time.Now()
 	code   := readTxtFile("d24." + dataset + ".txt")
 
-	analyze(code)
-	fmt.Println()
+	// uncomment to show the structure of the 14 code blocks: analyze(code)
+	// uncomment to show some typical results:                run(code, []int{1,5,6,7,3,4,3,6,2,8,9,5,5,6})
 
-	for i := 1; i < 10; i++ {
-		fmt.Printf("All %vs ------------------\n", i)
-		run(code, initial(i))		
-	}
+	min, max := solve(code)
+	fmt.Printf("Highest serial number is %v, lowest is %v\n", max, min)
 
  	fmt.Printf("Execution time: %v\n", time.Since(start))
 }
