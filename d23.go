@@ -1,3 +1,5 @@
+// PLEASE DON'T JUDGE :)
+// super ugly code that I just wrote to get the solution and getting over it since it was a busy day in life
 package main
 
 import (
