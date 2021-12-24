@@ -3,8 +3,8 @@ Notes
 running analysis shows
 - only three parameters changing
 - p1 is either 1 or 26 exectly 50% of the time
-- p2 is negative [10..14] whenever p1 is 26
-- p2 is positive [-1..-16] whenever p1 is 1 
+- p2 is [10..14] whenever p1 is 26
+- p2 is [-1..-16] whenever p1 is 1 
 
 running a few simulations:
 - whenever p1 is 1 the z result grows by multiplication of the order 20ish
@@ -61,8 +61,7 @@ for the case >> (p1==26) the situation is:
 -> inp(>>) = inp(last<<) + p3(last<<) + p2(>>)
 
 My input:
-
-	 1  2  3  4  5  6  7   8  9 10 11 12  13 14
+     1  2  3  4  5  6  7   8  9 10 11 12  13 14
 p1 [ 1  1  1 26  1  1  1  26  1 26 26 26  26 26]
 p2 [14 10 13 -8 11 11 14 -11 14 -1 -8 -5 -16 -6]
 p3 [12  9  8  3  0 11 10  13  3 10 10 14   6  5]
@@ -89,10 +88,3 @@ now, trying the highest digits for each:
 now the lowest
 
 18116121134117
-
-
-
-
-
-
-
