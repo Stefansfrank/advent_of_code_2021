@@ -5,14 +5,15 @@ running analysis shows
 - p1 is either 1 or 26 exectly 50% of the time
 - p2 is [10..14] whenever p1 is 26
 - p2 is [-1..-16] whenever p1 is 1 
+- p3 is [0..12] i.e. on the order of abs(p2)
 
 running a few simulations:
 - whenever p1 is 1 the z result grows by multiplication of the order 20ish
 - whenever p1 is 26 the z resuly is divided by a number somewhere around 20ish
 
--> this looks like there is a bit rotation happening in a base 26 number
+-> this looks like there is a digit rotation happening within a base 26 number
 
-let's look at the algorithm for p1 = 1 and p1 = 26:
+let's look at the algorithm for p1 == 1 and p1 == 26:
 
 [inp] [w] []
 -> input in w
@@ -26,11 +27,12 @@ let's look at the algorithm for p1 = 1 and p1 = 26:
 [eql] [x] [0]
 -> x = (inp != (z % 26) + p2)
 // checking whether input compares to lowest bit of incoming z plus p2
-// with p2 > 10 for p1=1, this is always true for p1=1 
+// since p2 = [10..14] and inp = [1..9], this is always true for p1=1 
 
 [div] [z] p1[1 1 1 26 1 1 1 26 1 26 26 26 26 26]
 -> z = z / p1 
-// this is NOP for p1==1 so it looks like p1==26 is the >> rotation
+// this is a NOP for p1==1 
+// it looks like p1==26 is the >> rotation
 
 [mul] [y] [0]
 [add] [y] [25]
@@ -38,7 +40,8 @@ let's look at the algorithm for p1 = 1 and p1 = 26:
 [add] [y] [1]
 [mul] [z] [y]
 -> z *= if x { 26 } else { 1 } 
-// yep, with x true for p1==1 << bit rotation happens if p1==1
+// yep, with x always true for p1==1 << rotation happens if p1==1
+// however it might also happen in p1==26 cases which would be weird
 
 [mul] [y] [0]
 [add] [y] [w]
@@ -46,21 +49,24 @@ let's look at the algorithm for p1 = 1 and p1 = 26:
 [mul] [y] [x]
 [add] [z] [y]
 -> z += if x { inp + p3 } else 0
-// the input and p3 are added as lowest bit if bit << rotation happened
+// the input and p3 are added as lowest digit if << rotation happened
 
-let's express this shorter
+Thoughts:
 
-for the case << (p1==1) there are two steps:
-1) bit rotation <<
-2) z lowest bit is set to (inp + p3)
+for the case << (p1==1) there are always two steps:
+1) rotation <<
+2) z lowest digit is set to (inp + p3)
 
 for the case >> (p1==26) the situation is:
-- if inp not equal the (last lowest bit on << rotation + p2) then z = z / 26 * 26 so the >> rotation is not happening
+- if inp is not equal the (lowest digit on last << rotation + p2) then the >> rotation is cancelled out
+- if the >> rotation is not happening, there is no way we get z back to 0
 
--> We most ensure that (last lowest bit on << rotation + p2) = (inp)
--> inp(>>) = inp(last<<) + p3(last<<) + p2(>>)
+-> Thus we most ensure that (lowest digit on last << rotation + p2) = (inp)
+-> given the last section of the code, the lowest digit on last << was the input plus p3 at the last <<
+-> inp(>>) = inp(last<<) + p3(last<<) + p2(>>) in order for the 
 
 My input:
+
      1  2  3  4  5  6  7   8  9 10 11 12  13 14
 p1 [ 1  1  1 26  1  1  1  26  1 26 26 26  26 26]
 p2 [14 10 13 -8 11 11 14 -11 14 -1 -8 -5 -16 -6]
@@ -88,3 +94,10 @@ now, trying the highest digits for each:
 now the lowest
 
 18116121134117
+
+
+
+
+
+
+
