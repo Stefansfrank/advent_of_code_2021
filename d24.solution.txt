@@ -1,0 +1,98 @@
+Notes
+
+running analysis shows
+- only three parameters changing
+- p1 is either 1 or 26 exectly 50% of the time
+- p2 is negative [10..14] whenever p1 is 26
+- p2 is positive [-1..-16] whenever p1 is 1 
+
+running a few simulations:
+- whenever p1 is 1 the z result grows by multiplication of the order 20ish
+- whenever p1 is 26 the z resuly is divided by a number somewhere around 20ish
+
+-> this looks like there is a bit rotation happening in a base 26 number
+
+let's look at the algorithm for p1 = 1 and p1 = 26:
+
+[inp] [w] []
+-> input in w
+
+[mul] [x] [0]
+[add] [x] [z]
+[mod] [x] [26]
+// ignore the div that came here and move it below for clarity
+[add] [x] p2[14 10 13 -8 11 11 14 -11 14 -1 -8 -5 -16 -6]
+[eql] [x] [w]
+[eql] [x] [0]
+-> x = (inp != (z % 26) + p2)
+// checking whether input compares to lowest bit of incoming z plus p2
+// with p2 > 10 for p1=1, this is always true for p1=1 
+
+[div] [z] p1[1 1 1 26 1 1 1 26 1 26 26 26 26 26]
+-> z = z / p1 
+// this is NOP for p1==1 so it looks like p1==26 is the >> rotation
+
+[mul] [y] [0]
+[add] [y] [25]
+[mul] [y] [x]
+[add] [y] [1]
+[mul] [z] [y]
+-> z *= if x { 26 } else { 1 } 
+// yep, with x true for p1==1 << bit rotation happens if p1==1
+
+[mul] [y] [0]
+[add] [y] [w]
+[add] [y] p3[12 9 8 3 0 11 10 13 3 10 10 14 6 5]
+[mul] [y] [x]
+[add] [z] [y]
+-> z += if x { inp + p3 } else 0
+// the input and p3 are added as lowest bit if bit << rotation happened
+
+let's express this shorter
+
+for the case << (p1==1) there are two steps:
+1) bit rotation <<
+2) z lowest bit is set to (inp + p3)
+
+for the case >> (p1==26) the situation is:
+- if inp not equal the (last lowest bit on << rotation + p2) then z = z / 26 * 26 so the >> rotation is not happening
+
+-> We most ensure that (last lowest bit on << rotation + p2) = (inp)
+-> inp(>>) = inp(last<<) + p3(last<<) + p2(>>)
+
+My input:
+
+	 1  2  3  4  5  6  7   8  9 10 11 12  13 14
+p1 [ 1  1  1 26  1  1  1  26  1 26 26 26  26 26]
+p2 [14 10 13 -8 11 11 14 -11 14 -1 -8 -5 -16 -6]
+p3 [12  9  8  3  0 11 10  13  3 10 10 14   6  5]
+
+<<>> pair 3,4:
+inp4 = inp3 + 8 - 8   = inp3
+<<>> pair 7,8:
+inp8 = inp7 + 10 - 11 = inp7 - 1
+<<>> pair 9,10:
+inp10 = inp9 + 3 - 1  = inp9 + 2
+<<>> pair 6,11:
+inp11 = inp6 + 11 - 8 = inp6 + 3
+<<>> pair 5,12:
+inp12 = inp5 + 0 - 5  = inp5 - 5
+<<>> pair 2,13:
+inp13 = inp2 + 9 - 16 = inp2 - 7
+<<>> pair 1,14:
+inp14 = inp1 + 12 - 6 = inp1 + 6
+
+now, trying the highest digits for each:
+
+39999698799429
+
+now the lowest
+
+18116121134117
+
+
+
+
+
+
+
